@@ -96,7 +96,7 @@ void euclidean_clustering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
     //-----可视化3/3-----↑
 }
 
-void region_growing(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+void region_growing_pcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     pcl::search::Search<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
     pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);

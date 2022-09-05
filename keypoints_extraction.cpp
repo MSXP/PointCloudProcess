@@ -1,6 +1,6 @@
 #include "include/keypoints_extraction.h"
 
-void get_harrisKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_harrisKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     float r_normal = 0.1f;   //法向量估计的半径
     float r_keypoint = 0.2f; //关键点估计的近邻搜索半径
@@ -24,20 +24,25 @@ void get_harrisKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
     // writer.write<pcl::PointXYZI> ("Harris_keypoints.pcd",*Harris_keypoints,false);
     // pcl::io::savePCDFileASCII("Harris keypoints.pcd", *Harris_keypoints);
 
-    //可视化点云
-    pcl::visualization::PCLVisualizer viewer("Harris");
-    viewer.setBackgroundColor(255, 255, 255);
-    //原始点云可视化
-    viewer.addPointCloud(cloud_ptr, "input_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "input_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
-    // Harris_keypoints关键点可视化
-    viewer.addPointCloud(Harris_keypoints, ColorHandlerT3(Harris_keypoints, 255.0, 0.0, 0.0), "harris_keypoints");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "harris_keypoints");
-    viewer.spin();
+    // //可视化点云
+    // pcl::visualization::PCLVisualizer viewer("Harris");
+    // viewer.setBackgroundColor(255, 255, 255);
+    // //原始点云可视化
+    // viewer.addPointCloud(cloud_ptr, "input_cloud");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "input_cloud");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
+    // // Harris_keypoints关键点可视化
+    // viewer.addPointCloud(Harris_keypoints, ColorHandlerT3(Harris_keypoints, 255.0, 0.0, 0.0), "harris_keypoints");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "harris_keypoints");
+    // viewer.spin();
+
+    //类型转换
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_temp(new pcl::PointCloud<pcl::PointXYZ>);
+    copyPointCloud(*Harris_keypoints, *cloud_temp); //将点类型pcl::PointWithScale的数据转换为点类型pcl::PointXYZ的数据
+    return cloud_temp;
 }
 
-void get_siftKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_siftKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     const float min_scale = 0.01;      //尺度空间中最小尺度的标准偏差
     const int n_octaves = 6;           //高斯金字塔中组的数目
@@ -60,19 +65,20 @@ void get_siftKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_temp(new pcl::PointCloud<pcl::PointXYZ>);
     copyPointCloud(result, *cloud_temp); //将点类型pcl::PointWithScale的数据转换为点类型pcl::PointXYZ的数据
 
-    //可视化输入点云和关键点
-    pcl::visualization::PCLVisualizer viewer("Sift");
-    viewer.setBackgroundColor(255, 255, 255);
-    viewer.addPointCloud(cloud_ptr, "input_cloud"); //在视窗中添加原始点云数据
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "input_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
-    viewer.addPointCloud(cloud_temp, "sift_keypoints"); //将SIFT关键点添加至视窗
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "sift_keypoints");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 255, 0, 0, "sift_keypoints");
-    viewer.spin();
+    // //可视化输入点云和关键点
+    // pcl::visualization::PCLVisualizer viewer("Sift");
+    // viewer.setBackgroundColor(255, 255, 255);
+    // viewer.addPointCloud(cloud_ptr, "input_cloud"); //在视窗中添加原始点云数据
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "input_cloud");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
+    // viewer.addPointCloud(cloud_temp, "sift_keypoints"); //将SIFT关键点添加至视窗
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "sift_keypoints");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 255, 0, 0, "sift_keypoints");
+    // viewer.spin();
+    return cloud_temp;
 }
 
-void get_narfKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_narfKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
 {
     // --------------------
     // -----Parameters-----
@@ -136,32 +142,33 @@ void get_narfKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr)
     // --------------------------------------------
     // -----Open 3D viewer and add point cloud-----
     // --------------------------------------------
-    pcl::visualization::PCLVisualizer viewer("NARF");
-    viewer.setBackgroundColor(255,255,255);
-    // 实测:以下两种可视化结果相同
-    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange> range_image_color_handler(range_image_ptr,0,0,0);
-    // viewer.addPointCloud(range_image_ptr,range_image_color_handler,"range_image");
-    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "range_image");
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> point_cloud_color_handler(cloud_ptr, 0, 0, 0);
-    viewer.addPointCloud(cloud_ptr, point_cloud_color_handler, "input_cloud");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
-    // 添加坐标轴并初始化位置
-    // viewer.addCoordinateSystem(1.0f);
-    // viewer.initCameraParameters();
-    // setViewerPose (viewer, range_image.getTransformationToWorldSystem ());
+    // pcl::visualization::PCLVisualizer viewer("NARF");
+    // viewer.setBackgroundColor(255,255,255);
+    // // 实测:以下两种可视化结果相同
+    // // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange> range_image_color_handler(range_image_ptr,0,0,0);
+    // // viewer.addPointCloud(range_image_ptr,range_image_color_handler,"range_image");
+    // // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "range_image");
+    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> point_cloud_color_handler(cloud_ptr, 0, 0, 0);
+    // viewer.addPointCloud(cloud_ptr, point_cloud_color_handler, "input_cloud");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "input_cloud");
+    // // 添加坐标轴并初始化位置
+    // // viewer.addCoordinateSystem(1.0f);
+    // // viewer.initCameraParameters();
+    // // setViewerPose (viewer, range_image.getTransformationToWorldSystem ());
 
-    // --------------------------
-    // -----Show range image-----
-    // --------------------------
-    pcl::visualization::RangeImageVisualizer range_image_widget("Range_image");
-    range_image_widget.showRangeImage(range_image);
+    // // --------------------------
+    // // -----Show range image-----
+    // // --------------------------
+    // pcl::visualization::RangeImageVisualizer range_image_widget("Range_image");
+    // range_image_widget.showRangeImage(range_image);
 
-    // -------------------------------------
-    // -----Show keypoints in 3D viewer-----
-    // -------------------------------------
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> keypoints_color_handler(keypoints_ptr, 255, 0, 0);
-    viewer.addPointCloud<pcl::PointXYZ>(keypoints_ptr,keypoints_color_handler,"narf_keypoints");
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,8,"narf_keypoints");
-    // range_image_widget.spin();
-    viewer.spin();
+    // // -------------------------------------
+    // // -----Show keypoints in 3D viewer-----
+    // // -------------------------------------
+    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> keypoints_color_handler(keypoints_ptr, 255, 0, 0);
+    // viewer.addPointCloud<pcl::PointXYZ>(keypoints_ptr,keypoints_color_handler,"narf_keypoints");
+    // viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,8,"narf_keypoints");
+    // // range_image_widget.spin();
+    // viewer.spin();
+    return keypoints_ptr;
 }

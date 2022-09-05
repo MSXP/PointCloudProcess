@@ -26,6 +26,6 @@ namespace pcl
 	};
 }
 
-void get_harrisKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-void get_siftKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
-void get_narfKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_harrisKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_siftKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
+pcl::PointCloud<pcl::PointXYZ>::Ptr get_narfKeypoints(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr);
