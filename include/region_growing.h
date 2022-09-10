@@ -77,6 +77,7 @@ vector<int> region_growing::region_growing_one(int index_point)
 	point_label.resize(cloud->points.size(), -1);
 	point_label[index_point] = 0;
 	vector<int>().swap(all_index);
+	cout << normal_->points[index_point].curvature << "   ";
 	while (!seed.empty())
 	{
 		int curr_seed = seed.front();
@@ -95,25 +96,16 @@ vector<int> region_growing::region_growing_one(int index_point)
 			Map<Vector3f> vec_curr_seed(static_cast<float *>(normal_->points[curr_seed].normal));
 			Map<Vector3f> vec_seed_nebor(static_cast<float *>(normal_->points[index_nebor].normal));
 			float dot_normal = fabsf(vec_curr_seed.dot(vec_seed_nebor));
-			if (dot_normal < normal_threshold_real)
+			if (dot_normal > normal_threshold_real)
 			{
-				is_a_seed = false;
+				all_index.push_back(index_nebor);
+				point_label[index_nebor] = 0;
+				if (normal_->points[index_nebor].curvature < curvature_threshold)
+				{
+					is_a_seed = true;
+				}
 			}
-			else if (normal_->points[index_nebor].curvature > curvature_threshold)
-			{
-				is_a_seed = false;
-			}
-			else
-			{
-				is_a_seed = true;
-			}
-			if (!is_a_seed)
-			{
-				K_nebor++;
-				continue;
-			}
-			all_index.push_back(index_nebor);
-			point_label[index_nebor] = 0;
+			
 			if (is_a_seed)
 			{
 				seed.push(index_nebor);

@@ -169,6 +169,12 @@ int main()
             pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud = bin2pcd(bin_file);
             // pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZ>);
             // pcl::io::loadPCDFile("/home/xp/Downloads/00001.pcd", *point_cloud);
+            // 可视化点云
+            pcl::visualization::PCLVisualizer viewer("region_growing");
+            viewer.setBackgroundColor(0,0,0);
+            pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> point_cloud_color_handler(point_cloud, 255, 255, 255);
+            viewer.addPointCloud(point_cloud, point_cloud_color_handler, "input_cloud");
+            viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "input_cloud");
 
             // 提取点云特征
             // handcraftedLocalFeature::Ptr handcrafted_local_features = get_narf(point_cloud);
@@ -188,6 +194,10 @@ int main()
             // get_harrisKeypoints(point_cloud);
             // get_siftKeypoints(point_cloud);
             pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints_ptr = get_narfKeypoints(point_cloud);
+            // 可视化关键点
+            pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> keypoints_color_handler(keypoints_ptr, 255, 0, 0);
+            viewer.addPointCloud<pcl::PointXYZ>(keypoints_ptr,keypoints_color_handler,"narf_keypoints");
+            viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,8,"narf_keypoints");
 
             // 获取关键点在点云中的索引
             pcl::PointIndices::Ptr keypoints_indices(new pcl::PointIndices); 
@@ -195,16 +205,24 @@ int main()
 
             // 区域生长
             region_growing reg_grow;
-            reg_grow.set_normal_curvature(0.3, 10.0);
+            reg_grow.set_normal_curvature(0.3, 30.0);
             reg_grow.setinput_point(point_cloud);
-            reg_grow.normal_estimation(10);
+            reg_grow.normal_estimation(20);
             vector<int> index_region;
+            pcl::PointCloud<pcl::PointXYZ>::Ptr oneregion(new pcl::PointCloud<pcl::PointXYZ>);
+            stringstream ss;
             for (int k = 0; k < keypoints_indices->indices.size(); k++)
             {
                 index_region = reg_grow.region_growing_one(keypoints_indices->indices[k]);
-                cout << index_region.size() << endl;
+                ss << "region_growing" << keypoints_indices->indices[k];
+                // cout << index_region.size() << endl;
+                copyPointCloud(*point_cloud, index_region, *oneregion);
+                // 可视化各区域
+                visualization::PointCloudColorHandlerRandom<PointT>region_growing_point_color(oneregion);
+	            viewer.addPointCloud(oneregion, region_growing_point_color, ss.str());
+	            viewer.setPointCloudRenderingProperties(visualization::PCL_VISUALIZER_POINT_SIZE, 4, ss.str());
             }
-
+            viewer.spin();
             pc_num++;
         }
 
