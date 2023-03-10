@@ -19,16 +19,19 @@ class region_growing
 {
 public:
 	region_growing();
+	region_growing(float, float, int, int);
+	~region_growing();
 	void setinput_point(PointCloud<PointT>::Ptr &point_cloud);
-	void set_normal_curvature(float, float);
 	void normal_estimation(int);
 	vector<int> region_growing_one(int index_point);
+	vector<int> get_all_index();
 
 private:
 	PointCloud<PointT>::Ptr cloud;
 	float curvature_threshold;
 	float normal_threshold;
 	int K_nebor_size;
+	int one_region_size;
 	PointCloud<Normal>::Ptr normal_;
 	vector<int> all_index;
 };
@@ -36,14 +39,22 @@ private:
 region_growing::region_growing()
 {
 	curvature_threshold = 0.2;
-	normal_threshold = 10.0;
+	normal_threshold = 10.0; //角度值
 	K_nebor_size = 10;
+	one_region_size = 32;
 }
 
-inline void region_growing::set_normal_curvature(float curvature_threshold1, float normal_threshold1)
+region_growing::region_growing(float curvature_threshold1, float normal_threshold1, int K_nebor_size1, int one_region_size1)
 {
 	curvature_threshold = curvature_threshold1;
-	normal_threshold = normal_threshold1;
+	normal_threshold = normal_threshold1; //角度值
+	K_nebor_size = K_nebor_size1;
+	one_region_size = one_region_size1;
+}
+
+region_growing::~region_growing()
+{
+	normal_->~PointCloud();
 }
 
 void region_growing::setinput_point(PointCloud<PointT>::Ptr &point_cloud)
@@ -71,13 +82,16 @@ vector<int> region_growing::region_growing_one(int index_point)
 	float normal_threshold_real = cosf(normal_threshold / 180.0 * M_PI);
 	queue<int> seed;
 	seed.push(index_point);
+	all_index.push_back(index_point);
 	vector<int> point_label;
 	vector<int> nebor_idx;
 	vector<float> nebor_distance;
 	point_label.resize(cloud->points.size(), -1);
 	point_label[index_point] = 0;
-	vector<int>().swap(all_index);
-	cout << normal_->points[index_point].curvature << "   ";
+	int point_num(1);
+	// 每次清空是为了可视化每个区域
+	// vector<int>().swap(all_index);
+	// cout << normal_->points[index_point].curvature << "   ";
 	while (!seed.empty())
 	{
 		int curr_seed = seed.front();
@@ -92,26 +106,40 @@ vector<int> region_growing::region_growing_one(int index_point)
 				K_nebor++;
 				continue;
 			}
-			bool is_a_seed = false;
 			Map<Vector3f> vec_curr_seed(static_cast<float *>(normal_->points[curr_seed].normal));
 			Map<Vector3f> vec_seed_nebor(static_cast<float *>(normal_->points[index_nebor].normal));
 			float dot_normal = fabsf(vec_curr_seed.dot(vec_seed_nebor));
+			// 夹角为0度，对应阈值1；夹角为90度，对应阈值为0
 			if (dot_normal > normal_threshold_real)
 			{
 				all_index.push_back(index_nebor);
 				point_label[index_nebor] = 0;
+				point_num++;
 				if (normal_->points[index_nebor].curvature < curvature_threshold)
 				{
-					is_a_seed = true;
+					seed.push(index_nebor);
 				}
 			}
-			
-			if (is_a_seed)
-			{
-				seed.push(index_nebor);
+			if(point_num == one_region_size){
+				queue<int>().swap(seed);
+				break;
 			}
 			K_nebor++;
 		}
 	}
+	// 通过法线和曲率筛选的点数量不够时，将还未选择的近邻点添加进去
+	tree->nearestKSearch(cloud->points[index_point], one_region_size, nebor_idx, nebor_distance);
+	int K_nebor(0);
+	while(point_num < one_region_size){
+		if(point_label[nebor_idx[K_nebor]] == -1){
+			all_index.push_back(nebor_idx[K_nebor]);
+			point_num++;
+		}
+		K_nebor++;
+	}
+	return all_index;
+}
+
+vector<int> region_growing::get_all_index(){
 	return all_index;
 }

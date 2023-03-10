@@ -136,7 +136,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr get_narfKeypoints(pcl::PointCloud<pcl::Point
     pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints_ptr(new pcl::PointCloud<pcl::PointXYZ>);//存放关键点指针
     pcl::PointCloud<pcl::PointXYZ>& keypoints = *keypoints_ptr;//存放关键点指针 的引用
     keypoints.resize(keypoint_indices.size());//设置点云数量
-    for(size_t i=0;i<keypoint_indices.size();++i)//循环 将深度图像的对应关键点 提取的  关键点云 里面
+    for(size_t i = 0; i < keypoint_indices.size(); ++i)//循环 将深度图像的对应关键点 提取的  关键点云 里面
         keypoints[i].getVector3fMap()=range_image[keypoint_indices[i]].getVector3fMap();
 
     // --------------------------------------------
