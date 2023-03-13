@@ -20,7 +20,6 @@ class region_growing
 public:
 	region_growing();
 	region_growing(float, float, int, int);
-	~region_growing();
 	void setinput_point(PointCloud<PointT>::Ptr &point_cloud);
 	void normal_estimation(int);
 	vector<int> region_growing_one(int index_point);
@@ -50,11 +49,6 @@ region_growing::region_growing(float curvature_threshold1, float normal_threshol
 	normal_threshold = normal_threshold1; //角度值
 	K_nebor_size = K_nebor_size1;
 	one_region_size = one_region_size1;
-}
-
-region_growing::~region_growing()
-{
-	normal_->~PointCloud();
 }
 
 void region_growing::setinput_point(PointCloud<PointT>::Ptr &point_cloud)

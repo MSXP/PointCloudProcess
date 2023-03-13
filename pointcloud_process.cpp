@@ -16,7 +16,7 @@
 using namespace std;
 
 // 数据集目录
-string DATASET_PATH = "/home/xp/local_feature/nkxp/benchmark_datasets/oxford/";
+string DATASET_PATH = "/home/nkcs314/place_recognition/benchmark_datasets/oxford/";
 string csv_file_name = "pointcloud_locations_20m_10overlap.csv";
 string point_cloud_folder = "pointcloud_20m_10overlap/";
 string regions_cloud_folder = "regionscloud_20m_10overlap/";
@@ -135,10 +135,11 @@ void getIndices(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, pcl::PointCloud<pcl
 
 int main()
 {
-    string BASE_DIR = getcwd(NULL, 0);
+    // string BASE_DIR = getcwd(NULL, 0);
     vector<string> runs_files;
     // 获取路径下所有文件夹的路径
-    getFiles(BASE_DIR + DATASET_PATH, runs_files);
+    // getFiles(BASE_DIR + DATASET_PATH, runs_files);
+    getFiles(DATASET_PATH, runs_files);
 
     for (int i = 0; i < runs_files.size(); ++i)
     {
@@ -268,14 +269,6 @@ int main()
             regions2bin(out_file, regions);
 
             pc_num++;
-            // 内存释放
-            point_cloud->~PointCloud();
-            keypoints_ptr->~PointCloud();
-            filtered_keypoints->~PointCloud();
-            sample_keypoints->~PointCloud();
-            regions->~PointCloud();
-            point_cloud_tree->~KdTree();
-            keypoints_tree->~KdTree();
         }
 
         point_clouds.close();

@@ -130,7 +130,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr get_narfKeypoints(pcl::PointCloud<pcl::Point
 
     pcl::PointCloud<int> keypoint_indices;
     narf_keypoint_detector.compute(keypoint_indices);
-    std::cout << "Found " << keypoint_indices.size() << " key points.\n";
+    // std::cout << "Found " << keypoint_indices.size() << " key points.\n";
 
     // 将深度图像的索引转换到点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints_ptr(new pcl::PointCloud<pcl::PointXYZ>);//存放关键点指针
